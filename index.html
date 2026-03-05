@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FLIPCARD — Memory Game</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="bg-grid"></div>
+
+  <div class="container">
+    <div class="header">
+      <h1>FLIP<span>CARD</span></h1>
+      <p class="subtitle">— Memory Challenge —</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <span class="stat-label">Moves</span>
+        <span class="stat-value" id="moves">0</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Time</span>
+        <span class="stat-value"><span id="timer">0</span><small>s</small></span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Best</span>
+        <span class="stat-value" id="bestScore">—</span>
+      </div>
+    </div>
+
+    <div id="gameBoard"></div>
+
+    <button id="restartBtn">↺ Restart</button>
+  </div>
+
+  <div id="winMessage">
+    <div class="win-box">
+      <div class="trophy-row">🏆</div>
+      <h2>You Win!</h2>
+      <div class="win-stats">
+        <div class="win-stat">
+          <span>Moves</span>
+          <strong id="winMoves">0</strong>
+        </div>
+        <div class="win-stat">
+          <span>Time</span>
+          <strong><span id="winTime">0</span>s</strong>
+        </div>
+      </div>
+      <div id="newBestMsg" class="new-best">🌟 New Best Score!</div>
+      <button id="playAgainBtn">Play Again</button>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

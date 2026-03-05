@@ -1,0 +1,387 @@
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg:           #08090f;
+  --surface:      #0f1117;
+  --surface2:     #13171f;
+  --border:       #1e2336;
+  --accent:       #00d4ff;
+  --accent-glow:  rgba(0, 212, 255, 0.2);
+  --match:        #00e5a0;
+  --match-glow:   rgba(0, 229, 160, 0.25);
+  --wrong:        #ff4d6d;
+  --wrong-glow:   rgba(255, 77, 109, 0.3);
+  --text:         #e2e8f0;
+  --muted:        #3a4560;
+}
+
+body {
+  font-family: 'DM Mono', monospace;
+  background-color: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Grid BG ── */
+.bg-grid {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0, 212, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.035) 1px, transparent 1px);
+  background-size: 44px 44px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Container ── */
+.container {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 32px 28px 26px;
+  background: var(--surface);
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  box-shadow:
+    0 0 0 1px rgba(0,212,255,0.05),
+    0 0 50px rgba(0,212,255,0.04),
+    0 24px 64px rgba(0,0,0,0.6);
+  width: min(420px, 95vw);
+}
+
+/* ── Header ── */
+.header { margin-bottom: 22px; }
+
+h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--text);
+  letter-spacing: 5px;
+}
+
+h1 span {
+  color: var(--accent);
+  text-shadow: 0 0 18px var(--accent), 0 0 36px rgba(0,212,255,0.3);
+}
+
+.subtitle {
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 4px;
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+
+/* ── Stats ── */
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.stat {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 78px;
+}
+
+.stat-label {
+  font-size: 0.55rem;
+  color: var(--muted);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.stat-value {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.1rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.stat-value small { font-size: 0.6rem; opacity: 0.7; }
+
+/* ── Game Board ── */
+#gameBoard {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+/* ══════════════════════════════════
+   CARD — Reliable flip mechanism
+   No backface-visibility dependency.
+   We swap opacity on the two faces
+   halfway through the rotation.
+   ══════════════════════════════════ */
+.card {
+  position: relative;
+  aspect-ratio: 1;
+  cursor: pointer;
+  border-radius: 12px;
+  /* The card wrapper rotates */
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+/* Parent perspective */
+#gameBoard { perspective: 800px; }
+
+/* Both faces share same position */
+.card-back,
+.card-front {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    opacity 0s 0.25s,   /* swap exactly at midpoint of 0.5s flip */
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+/* ── Card Back (default visible) ── */
+.card-back {
+  background: linear-gradient(145deg, #111827, #0c1220);
+  border: 1.5px solid #1a2d4a;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.3rem;
+  color: #1e3a5f;
+  opacity: 1;
+  z-index: 2;
+}
+
+.card:not(.flipped):not(.matched):hover .card-back {
+  border-color: var(--accent);
+  color: rgba(0, 212, 255, 0.5);
+  box-shadow: 0 0 14px var(--accent-glow);
+}
+
+/* ── Card Front (default hidden) ── */
+.card-front {
+  background: #0e1826;
+  border: 1.5px solid #1e2d45;
+  opacity: 0;
+  z-index: 1;
+  /* emoji font stack */
+  font-family: 'Segoe UI Emoji', 'Noto Color Emoji', 'Apple Color Emoji', 'Twemoji Mozilla', sans-serif;
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+/* ── When flipped: rotate card, swap face opacities ── */
+.card.flipped,
+.card.matched {
+  transform: rotateY(180deg);
+}
+
+.card.flipped .card-back,
+.card.matched .card-back {
+  opacity: 0;
+  transition: opacity 0s 0.25s;
+}
+
+.card.flipped .card-front,
+.card.matched .card-front {
+  opacity: 1;
+  transition: opacity 0s 0.25s;
+}
+
+/* ── Matched ── */
+.card.matched {
+  pointer-events: none;
+  animation: matchPop 0.4s ease 0.25s both;
+}
+
+.card.matched .card-front {
+  background: #091e16;
+  border-color: var(--match);
+  box-shadow: 0 0 16px var(--match-glow);
+}
+
+@keyframes matchPop {
+  0%   { transform: rotateY(180deg) scale(1); }
+  45%  { transform: rotateY(180deg) scale(1.14); }
+  100% { transform: rotateY(180deg) scale(1); }
+}
+
+/* ── Wrong ── */
+.card.wrong .card-front {
+  border-color: var(--wrong);
+  background: #1a0a10;
+  box-shadow: 0 0 14px var(--wrong-glow);
+}
+
+.card.wrong {
+  animation: wrongShake 0.45s ease;
+}
+
+@keyframes wrongShake {
+  0%, 100% { transform: rotateY(180deg) translateX(0); }
+  20%       { transform: rotateY(180deg) translateX(-6px); }
+  60%       { transform: rotateY(180deg) translateX(6px); }
+}
+
+/* ── Restart Button ── */
+#restartBtn {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  padding: 9px 24px;
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  letter-spacing: 2px;
+  transition: all 0.2s;
+}
+
+#restartBtn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+/* ── Win Overlay ── */
+#winMessage {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 5, 10, 0.9);
+  backdrop-filter: blur(8px);
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+#winMessage.show {
+  display: flex;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.win-box {
+  background: var(--surface);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 20px;
+  padding: 40px 52px;
+  text-align: center;
+  box-shadow: 0 0 60px rgba(0,212,255,0.1), 0 30px 80px rgba(0,0,0,0.7);
+  animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(28px) scale(0.94); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.trophy-row {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+.win-box h2 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.8rem;
+  color: var(--accent);
+  letter-spacing: 4px;
+  text-shadow: 0 0 20px var(--accent);
+  margin-bottom: 20px;
+}
+
+.win-stats {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.win-stat {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.win-stat span {
+  font-size: 0.58rem;
+  color: var(--muted);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.win-stat strong {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.3rem;
+  color: var(--match);
+}
+
+.new-best {
+  display: none;
+  font-size: 0.8rem;
+  color: gold;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+  animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+  from { opacity: 0.7; }
+  to   { opacity: 1; text-shadow: 0 0 12px gold; }
+}
+
+#playAgainBtn {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.78rem;
+  padding: 12px 36px;
+  background: var(--accent);
+  color: #000;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  margin-top: 18px;
+  letter-spacing: 2px;
+  transition: all 0.2s;
+  box-shadow: 0 0 20px var(--accent-glow);
+}
+
+#playAgainBtn:hover {
+  background: #33e0ff;
+  box-shadow: 0 0 30px rgba(0,212,255,0.45);
+  transform: translateY(-2px);
+}
+
+/* ── Mobile ── */
+@media (max-width: 380px) {
+  .container { padding: 20px 12px; }
+  h1 { font-size: 1.5rem; }
+  .card-front { font-size: 1.7rem; }
+  .win-box { padding: 30px 24px; }
+}
